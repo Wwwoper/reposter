@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  app:
+    image: v1ncento/reposter:latest
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - ./logs:/logs
+volumes:
+  logs:
