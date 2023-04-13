@@ -1,1 +1,47 @@
+name: ReposterApp
 
+on: push
+
+env:
+  IMAGE_NAME: reposter
+
+jobs:
+  build_and_push_to_docker_hub:
+    name: Загрузка docker образа на DockerHub.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Проверка доступа репозитория DockerHub.
+        uses: actions/checkout@v3 
+      
+      - name: Вызов сборщика контейнеров docker.
+        uses: docker/setup-buildx-action@v2
+
+      - name: Авторизации на DockerHub
+        uses: docker/login-action@v2 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Сборка и Загрузка образа на DockerHub.
+        uses: docker/build-push-action@v4 
+        with:
+          context: .
+          push: true
+          tags: v1ncento/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    name: Развертывание приложения.
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Выполнение удаленных ssh-команд для развертывания.
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker compose down
+            sudo docker pull v1ncento/${{ env.IMAGE_NAME }}:latest
+            sudo docker-compose up -d
