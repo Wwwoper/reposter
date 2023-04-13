@@ -1,0 +1,7 @@
+# black
+# flake8
+aiogram
+python-dotenv
+requests
+aiohttp
+asyncio
