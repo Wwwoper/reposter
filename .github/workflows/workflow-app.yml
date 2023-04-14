@@ -1,6 +1,9 @@
 name: ReposterApp
 
-on: push
+on:
+  push:
+    branches:
+      - master
 
 env:
   IMAGE_NAME: reposter
