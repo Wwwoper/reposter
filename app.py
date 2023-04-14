@@ -1,8 +1,6 @@
 import asyncio
 import os
 
-import aiofiles
-
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ContentTypes
 from aiogram.utils import executor
