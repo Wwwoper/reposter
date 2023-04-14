@@ -1,6 +1,8 @@
 import asyncio
 import os
 
+import aiofiles
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ContentTypes
 from aiogram.utils import executor
@@ -16,18 +18,17 @@ WHITE_LIST = [int(x) for x in os.getenv('WHITE_LIST').split(',')]
 
 
 def check_environment_variables():
-    load_dotenv()
     api_token = os.getenv('API_TOKEN')
-    white_list = os.getenv('WHITE_LIST')
     if not api_token:
         raise ValueError(
             'API_TOKEN is not defined in the environment variables'
         )
+
+    white_list = os.getenv('WHITE_LIST')
     if not white_list:
         raise ValueError(
             'WHITE_LIST is not defined in the environment variables'
         )
-    return True
 
 
 bot = Bot(token=API_TOKEN)
@@ -52,18 +53,20 @@ async def handle_photo(message: types.Message):
     await file.download()
     logger.debug(f'Загружен файл {file_path}')
     create_post_from_wall(file_path, text)
-    try:
-        os.remove(file_path)
-        logger.debug(f"File {file_path} was successfully removed")
+    await asyncio.to_thread(os.remove, file_path)
+    logger.debug(f"File {file_path} was successfully removed")
 
-    except OSError as e:
-        logger.debug(f"Error while removing file {file_path}: {e.strerror}")
+
+def main():
+    check_environment_variables()
+    logger.info('Start App')
+    asyncio.run(
+        executor.start_polling(
+            dp, loop=asyncio.get_event_loop(), skip_updates=True
+        )
+    )
+    logger.info('Finish App')
 
 
 if __name__ == '__main__':
-    if check_environment_variables():
-        logger.info('Start App')
-        loop = asyncio.get_event_loop()
-        executor.start_polling(dp, loop=loop, skip_updates=True)
-        logger.info('Finish App')
-    logger.critical('Ошибка при запуске приложения')
+    main()
