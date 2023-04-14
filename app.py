@@ -6,7 +6,7 @@ from aiogram.types import ContentTypes
 from aiogram.utils import executor
 from dotenv import load_dotenv
 
-from my_logger import my_logger
+from my_logger import debug_handler, info_handler
 from vk_bot import create_post_from_wall
 
 load_dotenv()
@@ -50,20 +50,22 @@ async def handle_photo(message: types.Message):
     file = await bot.get_file(file_id)
     file_path = file.file_path
     await file.download()
-    my_logger.info(f'Загружен файл {file_path}')
+    info_handler.info(f'Загружен файл {file_path}')
     create_post_from_wall(file_path, text)
     try:
         os.remove(file_path)
-        my_logger.debug(f"File {file_path} was successfully removed")
+        debug_handler.debug(f"File {file_path} was successfully removed")
 
     except OSError as e:
-        my_logger.debug(f"Error while removing file {file_path}: {e.strerror}")
+        debug_handler.debug(
+            f"Error while removing file {file_path}: {e.strerror}"
+        )
 
 
 if __name__ == '__main__':
     if check_environment_variables():
-        my_logger.info('Start App')
+        info_handler.info('Start App')
         loop = asyncio.get_event_loop()
         executor.start_polling(dp, loop=loop, skip_updates=True)
-        my_logger.info('Finish App')
-    my_logger.critical('Ошибка при запуске приложения')
+        info_handler.info('Finish App')
+    info_handler.critical('Ошибка при запуске приложения')

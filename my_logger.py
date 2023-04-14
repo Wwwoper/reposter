@@ -1,5 +1,6 @@
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 if not os.path.exists('logs'):
     os.makedirs('logs')
@@ -14,8 +15,8 @@ debug_handler = logging.handlers.RotatingFileHandler(
 )
 debug_handler.setLevel(logging.DEBUG)
 
-info_handler = logging.handlers.RotatingFileHandler(
-    'logs/info.log', maxBytes=1000000, backupCount=2
+info_handler = RotatingFileHandler(
+    'logs/info.log', maxBytes=100000, backupCount=2
 )
 info_handler.setLevel(logging.INFO)
 
