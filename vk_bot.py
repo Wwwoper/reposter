@@ -1,10 +1,10 @@
 import os
 from typing import Dict
-from my_logger import logger
 
 from dotenv import load_dotenv
-
 from requests import Session
+
+from my_logger import my_logger
 
 load_dotenv()
 
@@ -27,11 +27,11 @@ def get_upload_url() -> str:
             'v': V,
         },
     ).json()
-    logger.debug(f"get_upload_url response: {upload_server_response}")
+    my_logger.debug(f"get_upload_url response: {upload_server_response}")
     try:
         return upload_server_response['response']['upload_url']
     except KeyError as e:
-        logger.error(f"Error getting upload URL: {str(e)}")
+        my_logger.error(f"Error getting upload URL: {str(e)}")
         raise
 
 
@@ -39,7 +39,7 @@ def upload_image(upload_url: str, file_path: str) -> Dict[str, str]:
     with open(file_path, 'rb') as file:
         files = {'file': file}
         upload_response = session.post(url=upload_url, files=files).json()
-        logger.debug(f"upload_image response: {upload_response}")
+        my_logger.debug(f"upload_image response: {upload_response}")
     try:
         return (
             upload_response['server'],
@@ -47,7 +47,7 @@ def upload_image(upload_url: str, file_path: str) -> Dict[str, str]:
             upload_response['hash'],
         )
     except KeyError as e:
-        logger.error(f"Error uploading image: {str(e)}")
+        my_logger.error(f"Error uploading image: {str(e)}")
         raise
 
 
@@ -63,12 +63,12 @@ def post_save_wall_photo(server: int, photo: str, hash: str) -> str:
             'v': V,
         },
     ).json()
-    logger.debug(f"post_save_wall_photo response: {save_response}")
+    my_logger.debug(f"post_save_wall_photo response: {save_response}")
     try:
         photo_attachment = f"photo{save_response['response'][0]['owner_id']}_{save_response['response'][0]['id']}"
         return photo_attachment
     except KeyError as e:
-        logger.error(f"Error saving wall photo: {str(e)}")
+        my_logger.error(f"Error saving wall photo: {str(e)}")
         raise
 
 
@@ -85,11 +85,11 @@ def wall_post(photo_attachment: str, message: str) -> Dict[str, str]:
             'attachments': photo_attachment,
         },
     ).json()
-    logger.debug(f"wall_post response: {post_response}")
+    my_logger.debug(f"wall_post response: {post_response}")
     try:
         return post_response
     except KeyError as e:
-        logger.error(f"Error posting to wall: {str(e)}")
+        my_logger.error(f"Error posting to wall: {str(e)}")
         raise
 
 
@@ -99,8 +99,8 @@ def create_post_from_wall(file_path, message):
         server, photo, hash = upload_image(upload_url, file_path)
         photo_attachment = post_save_wall_photo(server, photo, hash)
         result = wall_post(photo_attachment, message)
-        logger.info(result)
+        my_logger.info(result)
         return result
     except KeyError as e:
-        logger.error(f"Error creating post from wall: {str(e)}")
+        my_logger.error(f"Error creating post from wall: {str(e)}")
         raise
