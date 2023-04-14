@@ -6,7 +6,7 @@ from aiogram.types import ContentTypes
 from aiogram.utils import executor
 from dotenv import load_dotenv
 
-from my_logger import debug_handler, info_handler
+from my_logger import logger
 from vk_bot import create_post_from_wall
 
 load_dotenv()
@@ -42,7 +42,7 @@ async def send_welcome(message: types.Message):
 @dp.channel_post_handler(content_types=ContentTypes.PHOTO)
 async def handle_photo(message: types.Message):
     if message.chat.id not in WHITE_LIST:
-        my_logger.error(f'Сообщение от чата {message.chat.id} не разрешены')
+        logger.error(f'Сообщение от чата {message.chat.id} не разрешены')
         return
     text = message.caption
     photo = message.photo[-1]
@@ -50,22 +50,20 @@ async def handle_photo(message: types.Message):
     file = await bot.get_file(file_id)
     file_path = file.file_path
     await file.download()
-    info_handler.info(f'Загружен файл {file_path}')
+    logger.debug(f'Загружен файл {file_path}')
     create_post_from_wall(file_path, text)
     try:
         os.remove(file_path)
-        debug_handler.debug(f"File {file_path} was successfully removed")
+        logger.debug(f"File {file_path} was successfully removed")
 
     except OSError as e:
-        debug_handler.debug(
-            f"Error while removing file {file_path}: {e.strerror}"
-        )
+        logger.debug(f"Error while removing file {file_path}: {e.strerror}")
 
 
 if __name__ == '__main__':
     if check_environment_variables():
-        info_handler.info('Start App')
+        logger.info('Start App')
         loop = asyncio.get_event_loop()
         executor.start_polling(dp, loop=loop, skip_updates=True)
-        info_handler.info('Finish App')
-    info_handler.critical('Ошибка при запуске приложения')
+        logger.info('Finish App')
+    logger.critical('Ошибка при запуске приложения')
