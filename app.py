@@ -26,7 +26,6 @@ def create_bot() -> Tuple[Bot, Dispatcher, VKAPI, Set[int]]:
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher(bot)
     vk = VKAPI(ACCESS_TOKEN, GROUP_TOKEN, GROUP_ID, V)
-
     return bot, dp, vk, WHITE_LIST
 
 
