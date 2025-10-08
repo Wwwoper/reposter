@@ -1,11 +1,13 @@
-version: '3.3'
+version: '3.8'
+
 services:
-  app:
-    image: v1ncento/reposter:latest
-    restart: always
-    env_file:
-      - ./.env
+  reposter-bot:
+    container_name: reposter-bot
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+      - .env
     volumes:
-      - ./logs:/logs
-volumes:
-  logs:
+      - ./logs:/app/logs
+    working_dir: /app

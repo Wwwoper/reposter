@@ -1,7 +1,6 @@
-# black
-# flake8
-aiogram
+aiogram==2.25.1
 python-dotenv
 requests
 aiohttp
 asyncio
+urllib3
