@@ -3,11 +3,28 @@ version: '3.8'
 services:
   reposter-bot:
     container_name: reposter-bot
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    
+    # ВАЖНО: Для graceful shutdown
+    init: true
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+    
+    env_file:
       - .env
+    
     volumes:
       - ./logs:/app/logs
+      - ./temp_photos:/app/temp_photos
+    
     working_dir: /app
+    
+    # Логирование Docker (опционально, но полезно)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
